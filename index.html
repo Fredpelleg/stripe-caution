@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,22 +8,26 @@
 <body>
   <h1>Test de Paiement de Caution</h1>
   <form id="payment-form">
-    <input type="hidden" id="amount" value="5"> <!-- Montant en centimes -->
+    <input type="hidden" id="amount" value="5000"> <!-- Montant en centimes -->
     <button type="submit">Payer la Caution</button>
   </form>
+  <div id="error-message" style="color: red;"></div>
   <script>
     document.getElementById('payment-form').addEventListener('submit', async (event) => {
       event.preventDefault();
       const amount = document.getElementById('amount').value;
-     // const response = await fetch('/.netlify/functions/create-checkout-session', {
-      const response = await fetch('https://musical-mousse-b4388f.netlify.app/netlify/functions/create-checkout-session', {
-        
+      const response = await fetch('https://musical-mousse-b4388f.netlify.app/.netlify/functions/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount, currency: 'eur' })
       });
-      const session = await response.json();
-      window.location.href = session.url;
+      
+      const result = await response.json();
+      if (response.ok) {
+        window.location.href = result.url;
+      } else {
+        document.getElementById('error-message').textContent = result.error;
+      }
     });
   </script>
 </body>
