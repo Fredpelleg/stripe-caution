@@ -16,7 +16,7 @@
     document.getElementById('payment-form').addEventListener('submit', async (event) => {
       event.preventDefault();
       const amount = document.getElementById('amount').value;
-      //const response = await fetch('https://musical-mousse-b4388f.netlify.app/.netlify/functions/create-checkout-session', {
+      //const response = await fetch('https://musical-mousse-b4388f.netlify.app/netlify/functions/create-checkout-session', {
        const response = await fetch('.create-checkout-session', {
      
         method: 'POST',
