@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paiement de Caution</title>
+</head>
+<body>
+  <h1>Test de Paiement de Caution</h1>
+  <form id="payment-form">
+    <input type="hidden" id="amount" value="5000"> <!-- Montant en centimes -->
+    <button type="submit">Payer la Caution</button>
+  </form>
+  <script>
+    document.getElementById('payment-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const amount = document.getElementById('amount').value;
+      const response = await fetch('/.netlify/functions/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount, currency: 'eur' })
+      });
+      const session = await response.json();
+      window.location.href = session.url;
+    });
+  </script>
+</body>
+</html>
