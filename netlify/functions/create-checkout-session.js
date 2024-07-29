@@ -20,8 +20,8 @@ exports.handler = async (event) => {
       payment_intent_data: {
         capture_method: 'manual',
       },
-      success_url: 'https://votre-site-netlify.netlify.app/success',
-      cancel_url: 'https://votre-site-netlify.netlify.app/cancel',
+      success_url: 'https://musical-mousse-b4388f.netlify.app/success',
+      cancel_url: 'https://musical-mousse-b4388f.netlify.app/cancel',
     });
 
     return {
