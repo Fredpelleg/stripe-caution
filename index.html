@@ -4,31 +4,96 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Paiement de Caution</title>
+  <script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
   <h1>Test de Paiement de Caution</h1>
   <form id="payment-form">
+    <div id="card-element"></div>
     <input type="hidden" id="amount" value="5000"> <!-- Montant en centimes -->
     <button type="submit">Payer la Caution</button>
   </form>
+  <button id="cancel-button" style="display: none;">Annuler la Caution</button>
   <div id="error-message" style="color: red;"></div>
   <script>
+    const stripe = Stripe('pk_test_51HyIanFP8glmTVRLzwVosP8ZdIsI6wKyApyzGMWmgSjfXEHJ1Oo9qzReFUdZRHvJIyCZusaM6V4kLdZ28TwKF8AU00TBfPxsab'); // Utilisez votre clé Stripe publiable
+    const elements = stripe.elements();
+    const cardElement = elements.create('card');
+    cardElement.mount('#card-element');
+
+    let paymentIntentId = null;
+
     document.getElementById('payment-form').addEventListener('submit', async (event) => {
       event.preventDefault();
-      const amount = document.getElementById('amount').value;
-      //const response = await fetch('https://musical-mousse-b4388f.netlify.app/netlify/functions/create-checkout-session', {
-       const response = await fetch('.create-checkout-session', {
-     
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount, currency: 'eur' })
-      });
+      console.log('Form submitted');
       
-      const result = await response.json();
-      if (response.ok) {
-        window.location.href = result.url;
-      } else {
-        document.getElementById('error-message').textContent = result.error;
+      const amount = document.getElementById('amount').value;
+      console.log('Amount:', amount);
+      
+      try {
+        const response = await fetch('https://musical-mousse-b4388f.netlify.app/.netlify/functions/create-checkout-session', { // Chemin absolu
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount, currency: 'eur' })
+        });
+
+        console.log('Response status:', response.status);
+
+        const result = await response.json();
+        console.log('Result:', result);
+
+        if (response.ok) {
+          const { clientSecret, id } = result;
+          paymentIntentId = id; // Stockez l'ID du PaymentIntent
+          const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+            payment_method: {
+              card: cardElement,
+              billing_details: {
+                name: 'Jenny Rosen',
+              },
+            },
+          });
+
+          if (error) {
+            document.getElementById('error-message').textContent = error.message;
+          } else if (paymentIntent.status === 'requires_capture') {
+            // L'autorisation est réussie
+            document.getElementById('cancel-button').style.display = 'block';
+            window.location.href = 'https://musical-mousse-b4388f.netlify.app/success.html';
+          }
+        } else {
+          document.getElementById('error-message').textContent = result.error;
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('error-message').textContent = 'An error occurred';
+      }
+    });
+
+    document.getElementById('cancel-button').addEventListener('click', async () => {
+      if (!paymentIntentId) {
+        return;
+      }
+      
+      try {
+        const response = await fetch('https://musical-mousse-b4388f.netlify.app/.netlify/functions/cancel-authorization', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ paymentIntentId })
+        });
+
+        const result = await response.json();
+        console.log('Cancel result:', result);
+
+        if (response.ok) {
+          alert('Caution annulée avec succès');
+          document.getElementById('cancel-button').style.display = 'none';
+        } else {
+          document.getElementById('error-message').textContent = result.error;
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('error-message').textContent = 'An error occurred';
       }
     });
   </script>
