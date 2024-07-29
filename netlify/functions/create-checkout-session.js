@@ -1,7 +1,7 @@
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-
+//const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const stripe = require('stripe')('sk_test_51HyIanFP8glmTVRLMRyos2ErKwWGCTQRSO50GSNUqWkXwBXEJxnSrKGQsoCRBWW5c76AGC3ZydVytVwsTCVQAMMt004ydOJ0Jv'); // Utilisation directe de la clé secrète
 exports.handler = async (event) => {
-  console.log('Using Stripe Secret Key:', process.env.STRIPE_SECRET_KEY); // Vérifiez la clé ici
+  console.log('Using Stripe Secret Key:', 'sk_test_51HyIanFP8glmTVRLMRyos2ErKwWGCTQRSO50GSNUqWkXwBXEJxnSrKGQsoCRBWW5c76AGC3ZydVytVwsTCVQAMMt004ydOJ0Jv'; // Vérifiez la clé ici
 
 
   const { amount, currency } = JSON.parse(event.body);
